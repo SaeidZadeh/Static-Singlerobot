@@ -132,7 +132,7 @@ exec=function(texc,i,u) # Returns average execution time of algorithms to be per
   if(i>2)
     return(texc[1,u])
 }
-distnc=function(tdist,i,u,excec,k) # Finds the average time to transmit the request for execution of an algorithm and recieve the output of the algorithm, when the algorithm is initiate from other nodes that it is allocated to.
+distnc=function(tdist,i,u,excec,k) # Finds the average time to transmit the request for execution of an algorithm and recieve the output of the algorithm, when the algorithm is initiate from other nodes that it is allocated to. When we use different bandwidth capaciy it should be changed.
 {
   return(tdist[u,i]*excec[1,k]+tdist[i,u]*excec[2,k])
 }
@@ -216,7 +216,7 @@ memofun=function(A,p,excec,no.rob) # Finds the average memory usage by each robo
   xxli=xxour # distance to the origin of the method by Li. et. al. (2018)
   for(iia in 1:50)
   {
-    a=matrix(data=0,nrow=7,ncol=7) # Matrix representation of the graph of algorithms
+    a=matrix(data=0,nrow=7,ncol=7) # Matrix representation of the graph of algorithms. When we use different set of algorithms it should be changed.
     a[1,2]=1
     a[2,3]=1
     a[2,4]=1
@@ -226,7 +226,7 @@ memofun=function(A,p,excec,no.rob) # Finds the average memory usage by each robo
     a[6,7]=1
     
     
-    texc=matrix(data=0,nrow=3,ncol=length(a[1,])) # Average execution time of algorithms allocated to the edge, fog, or the cloud in seconds
+    texc=matrix(data=0,nrow=3,ncol=length(a[1,])) # Average execution time of algorithms allocated to the edge, fog, or the cloud in seconds. When we use different set of algorithms it should be changed.
     texc[1,5]=0.44457
     texc[1,1]=4.4754
     texc[1,2]=0.00072
@@ -250,7 +250,7 @@ memofun=function(A,p,excec,no.rob) # Finds the average memory usage by each robo
     texc[3,4]=0.00027
     
     texc=texc*1000
-    excec=matrix(data=0,nrow=3,ncol=length(a[1,])) # Input, output, and processing memory usage by algorithms in bits
+    excec=matrix(data=0,nrow=3,ncol=length(a[1,])) # Input, output, and processing memory usage by algorithms in bits. When we use different set of algorithms it should be changed.
     excec[1,5]=24*3*256*256
     excec[1,1]=24*3*256*256*10
     excec[1,2]=1120*10
