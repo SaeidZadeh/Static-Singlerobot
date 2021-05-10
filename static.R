@@ -5,7 +5,7 @@ library(statGraph)
 library(arrangements)
 
 
-areeq=function(a,b,p)
+areeq=function(a,b,p) # Function to find whether two matrices are equal
 {
   for(i in 1:length(a[1,]))
     for(j in 1:length(a[1,]))
@@ -13,20 +13,20 @@ areeq=function(a,b,p)
         return(0)
   return(1)
 }
-areisogr=function(g1,g2)
+areisogr=function(g1,g2) # Function to find whether two graphs are isomorphic
 {
   a1=as.matrix(get.adjacency(g1))
   a2=as.matrix(get.adjacency(g2))
   return(areiso(a1,a2))
 }
-areisowithany=function(g,G)
+areisowithany=function(g,G) # Function to find whether a graph is isomorphic to any graph in a given set of graphs
 {
   for(i in 1:length(G))
     if(areisogr(g,G[i])==1)
       return(1)
   return(0)
 }
-areiso=function(a,b)
+areiso=function(a,b) # Function to find if adjacency matrices of two graphs are isomorphic
 {
   if(length(a[1,])!=length(b[1,]))
     return(0)
@@ -36,27 +36,27 @@ areiso=function(a,b)
       return(1)
   return(0)
 }
-indeg=function(a)
+indeg=function(a) # Function to find the list of in-degree of all vertices of a graph
 {
   c=rep(0,length(a[1,]))
   for(i in 1:length(a[1,]))
     c[i]=sum(a[,i])
   return(sort(c))
 }
-outdeg=function(a)
+outdeg=function(a) # Function to find the list of out-degree of all vertices of a graph
 {
   c=rep(0,length(a[1,]))
   for(i in 1:length(a[1,]))
     c[i]=sum(a[i,])
   return(sort(c))
 }
-naiveisogr=function(g1,g2)
+naiveisogr=function(g1,g2) # Function to check whether two graphs are naive isomorphic
 {
   a1=as.matrix(get.adjacency(g1))
   a2=as.matrix(get.adjacency(g2))
   return(naiveiso(a1,a2))
 }
-naiveiso=function(a,b)
+naiveiso=function(a,b) # Function to check whether the adjacency matrices of two graphs are naive isomorphic
 {
   if(length(a[1,])!=length(b[1,]))
     return(0)
@@ -72,7 +72,7 @@ naiveiso=function(a,b)
       return(0)
   return(1)
 }
-toadj=function(g)
+toadj=function(g) # Function to transform a graph to its adjacency matrix
 {
   a=matrix(data=0,nrow=length(g@nodes),ncol=length(g@nodes))
   for(i in 1:length(g@nodes))
@@ -85,37 +85,14 @@ toadj=function(g)
   }
   return(a)
 }
-
-outdeg2=function(a)
-{
-  b=rep(0,length(a[1,]))
-  for(i in 1:length(a[1,]))
-    b[i]=sum(a[i,])
-  return(which(b>=2))
-}
-duplicable=function(a)
-{
-  g=graph.adjacency(a, mode = "directed",diag=TRUE)
-  b=outdeg2(a)
-  d=b
-  c=setdiff(1:length(a[1,]),b)
-  for(i in 1:length(c))
-  {
-    t=intersect(setdiff(as.numeric(subcomponent(g,i,mode="out")),i),b)
-    if(length(t)>=1)
-      d=c(b,i);
-  }
-  return(d)
-}
-
-indeg0=function(a)
+indeg0=function(a) # Function to find vertices of a graph with in-degree zero
 {
   b=rep(0,length(a[1,]))
   for(i in 1:length(a[1,]))
     b[i]=sum(a[,i])
   return(which(b==0))
 }
-outdeg0=function(a)
+outdeg0=function(a) # Function to find vertices of a graph with out-degree zero
 {
   b=rep(0,length(a[1,]))
   for(i in 1:length(a[1,]))
@@ -123,7 +100,7 @@ outdeg0=function(a)
   return(which(b==0))
 }
 
-adjlist_find_paths <- function(a, n, m, path = list()) {
+adjlist_find_paths <- function(a, n, m, path = list()) { # Function to find a path in graph from vertex source to vertex dest.
   path <- c(path, list(n))
   if (n == m) {
     return(list(path))
@@ -139,15 +116,14 @@ adjlist_find_paths <- function(a, n, m, path = list()) {
   }
 }
 
-# Find paths in graph from vertex source to vertex dest.
-paths_from_to <- function(graph, source, dest) {
+paths_from_to <- function(graph, source, dest) { # Find paths in graph from vertex source to vertex dest.
   a <- as_adj_list(graph, mode = "out")
   paths <- adjlist_find_paths(a, source, dest)
   lapply(paths, function(path) {V(graph)[unlist(path)]})
 }
 
 
-exec=function(texc,i,u)
+exec=function(texc,i,u) # Returns average execution time of algorithms to be performed on the edge, fog or cloud
 {
   if(i==1)
     return(texc[3,u])
@@ -156,22 +132,22 @@ exec=function(texc,i,u)
   if(i>2)
     return(texc[1,u])
 }
-distnc=function(tdist,i,u,excec,k)
+distnc=function(tdist,i,u,excec,k) # Finds the average time to transmit the request for execution of an algorithm and recieve the output of the algorithm, when the algorithm is initiate from other nodes that it is allocated to.
 {
   return(tdist[u,i]*excec[1,k]+tdist[i,u]*excec[2,k])
 }
-ptoset=function(tdist,texc,i,u,k,excec)
+ptoset=function(tdist,texc,i,u,k,excec) # Finds the average time to transmit and execute an algorithm, when the algorithm is initiate from other nodes that it is allocated to.
 {
   return(min(distnc(tdist,i,u,excec,k)+exec(texc,u,k)))
 }
-stoset=function(tdist,texc,u,b,k,excec)
+stoset=function(tdist,texc,u,b,k,excec) # Finds the average time to collect all outputs of all algorithms that required to perform an algorithm.
 {
   x=rep(0,length(u))
   for(i in 1:length(x))
     x[i]=ptoset(tdist,texc,u[i],b,k,excec)
   return(max(x))
 }
-lento=function(i,A,tdist,texc,p,excec)
+lento=function(i,A,tdist,texc,p,excec) # Finds the average time to execute the final algorithm and transmit its output to the node that initiate the request when the allocation of all algorithms are given.
 {
   x=rep(0,length(p))
   for(k in 1:length(p)){
@@ -184,26 +160,26 @@ lento=function(i,A,tdist,texc,p,excec)
   return(max(x))
 }
 ###################################################
-distncli=function(tdist,i,u,excec,k)
+distncli=function(tdist,i,u,excec,k) # Finds the average time to transmit the request for execution of an algorithm and recieve the output of the algorithm, when the algorithm is initiate from other nodes that it is allocated to. For method by Li. et. al. (2018)
 {
   return(tdist[u,i]*excec[1,k]+tdist[i,u]*excec[2,k])
 }
-ptosetli=function(tdist,texc,i,u,k,excec)
+ptosetli=function(tdist,texc,i,u,k,excec) # Finds the average time to transmit and execute an algorithm, when the algorithm is initiate from other nodes that it is allocated to. For method by Li. et. al. (2018)
 {
   return(min(distnc(tdist,i,u,excec,k)+exec(texc,u,k)))
 }
-ptosetlimin=function(tdist,texc,i,u,k,excec)
+ptosetlimin=function(tdist,texc,i,u,k,excec) # Finds the average time to transmit and execute an algorithm, when the algorithm is initiate from other nodes that it is allocated to (the case when the algorithm is not the final algorithm). For method by Li. et. al. (2018)
 {
   return(tdist[i,u]*excec[2,k])
 }
-stosetli=function(tdist,texc,u,b,k,excec)
+stosetli=function(tdist,texc,u,b,k,excec) # Finds the average time to collect all outputs of all algorithms that required to perform an algorithm. For method by Li. et. al. (2018)
 {
   x=rep(0,length(u))
   for(i in 1:length(x))
     x[i]=ptosetli(tdist,texc,u[i],b,k,excec)
   return(max(x))
 }
-lentoli=function(i,A,tdist,texc,p,excec)
+lentoli=function(i,A,tdist,texc,p,excec) # Finds the average time to execute the final algorithm and transmit its output to the node that initiate the request when the allocation of all algorithms are given. For method by Li. et. al. (2018)
 {
   x=rep(0,length(p))
   for(k in 1:length(p)){
@@ -218,7 +194,7 @@ lentoli=function(i,A,tdist,texc,p,excec)
   }
   return(max(x))
 }
-memofun=function(A,p,excec,no.rob)
+memofun=function(A,p,excec,no.rob) # Finds the average memory usage by each robot for a given allocation of algorithms
 {
   x=sum(excec[1,])*32+sum(excec[2,])*32
   y=matrix(data=0,nrow=length(p),ncol=no.rob)
@@ -236,15 +212,11 @@ memofun=function(A,p,excec,no.rob)
   return((x+max(y))/1024/1024)
 }
 
-  ddatplip=rep(0,10)
-  ddatwodpp=rep(0,10)
-  memolip=rep(0,10)
-  memooursp=rep(0,10)
-  xxour=rep(0,50)
-  xxli=xxour
+  xxour=rep(0,50) # distance to the origin of our method
+  xxli=xxour # distance to the origin of the method by Li. et. al. (2018)
   for(iia in 1:50)
   {
-    a=matrix(data=0,nrow=7,ncol=7)
+    a=matrix(data=0,nrow=7,ncol=7) # Matrix representation of the graph of algorithms
     a[1,2]=1
     a[2,3]=1
     a[2,4]=1
@@ -254,7 +226,7 @@ memofun=function(A,p,excec,no.rob)
     a[6,7]=1
     
     
-    texc=matrix(data=0,nrow=3,ncol=length(a[1,]))
+    texc=matrix(data=0,nrow=3,ncol=length(a[1,])) # Average execution time of algorithms allocated to the edge, fog, or the cloud in seconds
     texc[1,5]=0.44457
     texc[1,1]=4.4754
     texc[1,2]=0.00072
@@ -278,7 +250,7 @@ memofun=function(A,p,excec,no.rob)
     texc[3,4]=0.00027
     
     texc=texc*1000
-    excec=matrix(data=0,nrow=3,ncol=length(a[1,]))
+    excec=matrix(data=0,nrow=3,ncol=length(a[1,])) # Input, output, and processing memory usage by algorithms in bits
     excec[1,5]=24*3*256*256
     excec[1,1]=24*3*256*256*10
     excec[1,2]=1120*10
@@ -306,15 +278,15 @@ memofun=function(A,p,excec,no.rob)
     
     
     
-    gr=graph.adjacency(a, mode = "directed",diag=TRUE)
+    gr=graph.adjacency(a, mode = "directed",diag=TRUE) # generates the graph of algorithms
     o0=outdeg0(a)
     i0=indeg0(a)
     p=as.list(0)
     for(k in 1:length(i0))
       for(j in 1:length(o0))
-        p=c(p,paths_from_to(gr,i0[k],o0[j]))
+        p=c(p,paths_from_to(gr,i0[k],o0[j])) # finds the set of execution flows
     p=p[2:length(p)];
-    fp=matrix(data=0,nrow=6,ncol=6)
+    fp=matrix(data=0,nrow=6,ncol=6) # average data transmission time between nodes for transmitting 32 bytes of data
     fp[1,3]=0.439+abs(rnorm(1,0.188,0.087))
     fp[1,4]=0.439+abs(rnorm(1,0.188,0.087))
     fp[1,5]=0.439+abs(rnorm(1,0.188,0.087))
@@ -350,12 +322,12 @@ memofun=function(A,p,excec,no.rob)
     
     
     
-    gp=graph.adjacency(fp, mode = "undirected", weighted = TRUE, diag = FALSE)
-    tdist <- shortest.paths(gp, algorithm = "dijkstra")
+    gp=graph.adjacency(fp, mode = "undirected", weighted = TRUE, diag = FALSE) # generate the graph of cloud system architecture
+    tdist <- shortest.paths(gp, algorithm = "dijkstra") # finds the shortest transmission time between two nodes
     x=rep(0,i-1);
     xli=x
     xzed=x
-    l=rep(1,length(a[1,]))
+    l=rep(1,length(a[1,])) # initial allocation all algorithms are allocated to a cloud node
     lp=l
     lpli=l
     for(k in 3:(i+1)){
