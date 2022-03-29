@@ -159,41 +159,6 @@ lento=function(i,A,tdist,texc,p,excec) # Finds the average time to execute the f
   }
   return(max(x))
 }
-###################################################
-distncli=function(tdist,i,u,excec,k) # Finds the average time to transmit the request for execution of an algorithm and recieve the output of the algorithm, when the algorithm is initiate from other nodes that it is allocated to. For method by Li. et. al. (2018)
-{
-  return(tdist[u,i]*excec[1,k]+tdist[i,u]*excec[2,k])
-}
-ptosetli=function(tdist,texc,i,u,k,excec) # Finds the average time to transmit and execute an algorithm, when the algorithm is initiate from other nodes that it is allocated to. For method by Li. et. al. (2018)
-{
-  return(min(distnc(tdist,i,u,excec,k)+exec(texc,u,k)))
-}
-ptosetlimin=function(tdist,texc,i,u,k,excec) # Finds the average time to transmit and execute an algorithm, when the algorithm is initiate from other nodes that it is allocated to (the case when the algorithm is not the final algorithm). For method by Li. et. al. (2018)
-{
-  return(tdist[i,u]*excec[2,k])
-}
-stosetli=function(tdist,texc,u,b,k,excec) # Finds the average time to collect all outputs of all algorithms that required to perform an algorithm. For method by Li. et. al. (2018)
-{
-  x=rep(0,length(u))
-  for(i in 1:length(x))
-    x[i]=ptosetli(tdist,texc,u[i],b,k,excec)
-  return(max(x))
-}
-lentoli=function(i,A,tdist,texc,p,excec) # Finds the average time to execute the final algorithm and transmit its output to the node that initiate the request when the allocation of all algorithms are given. For method by Li. et. al. (2018)
-{
-  x=rep(0,length(p))
-  for(k in 1:length(p)){
-    if(length((p[[k]]))>1)
-      for(j in seq(length(p[[k]]),2))
-        x[k]=x[k]+stosetli(tdist,texc,A[as.numeric(p[[k]][j])],A[as.numeric(p[[k]][j-1])],
-                           as.numeric(p[[k]][j-1]),excec)
-    x[k]=x[k]+ptosetli(tdist,texc,i,A[as.numeric(p[[k]][1])]
-                       ,as.numeric(p[[k]][1]),excec)-ptosetlimin(
-                         tdist,texc,i,A[as.numeric(p[[k]][1])],
-                         as.numeric(p[[k]][1]),excec)
-  }
-  return(max(x))
-}
 memofun=function(A,p,excec,no.rob) # Finds the average memory usage by each robot for a given allocation of algorithms
 {
   x=sum(excec[1,])*32+sum(excec[2,])*32
@@ -325,37 +290,28 @@ memofun=function(A,p,excec,no.rob) # Finds the average memory usage by each robo
     gp=graph.adjacency(fp, mode = "undirected", weighted = TRUE, diag = FALSE) # generate the graph of cloud system architecture
     tdist <- shortest.paths(gp, algorithm = "dijkstra") # finds the shortest transmission time between two nodes
     x=rep(0,i-1);
-    xli=x
     xzed=x
     l=rep(1,length(a[1,])) # initial allocation all algorithms are allocated to a cloud node
     lp=l
-    lpli=l
     for(k in 3:(i+1)){
       x[k-2]=lento(k,l,tdist,texc,p,excec)
       xli[k-2]=lentoli(k,l,tdist,texc,p,excec)
       xzed=x-xli
     }
     mem1=memofun(l,p,excec,i-1)
-    mem1li=memofun(l,p,excec,i-1)
     memn=memofun(l,p,excec,i-1)
     xn=sqrt(sum(x^2))
-    xnli=sqrt(sum(xli^2))
     y=x
-    yli=xli
     yp=x
-    xlitemp=xli
     xtemp=x
     allcomp=combinations(length(fp[1,]),length(a[1,]),replace=TRUE)
     zert=rep(0,length(allcomp[,1]))
-    zertli=zert
     for(zed in 1:length(allcomp[,1])){
       for(k in 3:(i+1)){
         x[k-2]=lento(k,allcomp[zed,],tdist,texc,p,excec)
-        xli[k-2]=lentoli(k,allcomp[zed,],tdist,texc,p,excec)
       }
       mem2=memofun(allcomp[zed,],p,excec,i-1)
       zert[zed]=sqrt(sum((x/xn)^2))*0.001
-      zertli[zed]=sqrt(sum((xli/xnli)^2))*0.001
       if(sqrt(sum((yp/xn)^2)+(mem1/memn)^2)>=sqrt(sum((x/xn)^2)+(mem2/memn)^2)){
         for(k in 3:(i+1))
           yp[k-2]=x[k-2];
@@ -363,18 +319,8 @@ memofun=function(A,p,excec,no.rob) # Finds the average memory usage by each robo
         xtemp=x
         mem1=mem2
       }
-      if(sqrt(sum((yli/xnli)^2)+(mem1li/memn)^2)>=sqrt(sum((xli/xnli)^2)+(mem2/memn)^2)){
-        lpli=allcomp[zed,]
-        for(k in 3:(i+1)){
-          yli[k-2]=xli[k-2];
-        }
-        xlitemp=yli
-        mem1li=mem2
-      }
-      xzed=xtemp-xlitemp
     }
-    xxli[iia]=sqrt(sum((yli/xnli)^2)+(mem1li/memn)^2)
     xxour[iia]=sqrt(sum((yp/xn)^2)+(mem1/memn)^2)
     print(iia)
   }
-print(c(mean(xxli),sd(xxli),mean(xxour),sd(xxour)))
+print(c(mean(xxour),sd(xxour)))
